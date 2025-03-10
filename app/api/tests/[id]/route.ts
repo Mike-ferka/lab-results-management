@@ -1,6 +1,6 @@
 import { prisma } from "../../../utils/prisma";
 import { NextRequest, NextResponse } from "next/server";
-import { z } from "zod";
+import { z, ZodError } from "zod";
 
 // ✅ Zod Schema Validation
 const testSchema = z.object({
@@ -14,24 +14,15 @@ const testSchema = z.object({
   notes: z.string().optional(),
 });
 
-// ✅ Explicitly type the request parameters
-interface Context {
-  params: {
-    id: string;
-  };
-}
-
-// ✅ Fix GET handler for Next.js 15+
-export async function GET(req: NextRequest, context: Context) {
+// ✅ GET handler (fetch test by ID)
+export async function GET(req: NextRequest, { params }: { params: { id: string } }) {
   try {
-    const { id } = context.params;
-
+    const { id } = params;
     if (!id) {
       return NextResponse.json({ error: "ID is required" }, { status: 400 });
     }
 
     const test = await prisma.diagnosticTest.findUnique({ where: { id } });
-
     if (!test) {
       return NextResponse.json({ error: "Test not found" }, { status: 404 });
     }
@@ -42,9 +33,10 @@ export async function GET(req: NextRequest, context: Context) {
   }
 }
 
-export async function PUT(req: NextRequest, context: { params: Params }) {
+// ✅ PUT handler (update test by ID)
+export async function PUT(req: NextRequest, { params }: { params: { id: string } }) {
   try {
-    const { id } = context.params;
+    const { id } = params;
     if (!id) {
       return NextResponse.json({ error: "ID is required" }, { status: 400 });
     }
@@ -62,16 +54,17 @@ export async function PUT(req: NextRequest, context: { params: Params }) {
 
     return NextResponse.json(updatedTest);
   } catch (error) {
-    if (error instanceof z.ZodError) {
+    if (error instanceof ZodError) {
       return NextResponse.json({ error: error.errors[0].message }, { status: 400 });
     }
     return NextResponse.json({ error: "Failed to update test" }, { status: 500 });
   }
 }
 
-export async function DELETE(req: NextRequest, context: { params: Params }) {
+// ✅ DELETE handler (delete test by ID)
+export async function DELETE(req: NextRequest, { params }: { params: { id: string } }) {
   try {
-    const { id } = context.params;
+    const { id } = params;
     if (!id) {
       return NextResponse.json({ error: "ID is required" }, { status: 400 });
     }
