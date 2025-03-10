@@ -14,15 +14,16 @@ const testSchema = z.object({
   notes: z.string().optional(),
 });
 
-// ✅ Universal type for request parameters
-interface Params {
-  id: string;
-}
+// ✅ Ensure params are correctly typed
+type Params = { id: string };
 
-// ✅ Correct Request Handling for Next.js 15
-export async function GET(req: NextRequest, context: { params: Params }) {
+// ✅ Fix for Next.js 15+
+export async function GET(
+  req: NextRequest,
+  { params }: { params: Params }
+) {
   try {
-    const { id } = context.params;
+    const { id } = params;
     if (!id) {
       return NextResponse.json({ error: "ID is required" }, { status: 400 });
     }
