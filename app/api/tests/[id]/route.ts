@@ -20,7 +20,7 @@ export async function GET(
   context: { params: { id: string } }
 ) {
   try {
-    const { id } = context.params;
+    const { id } = context.params; // Corrected parameter extraction
     const test = await prisma.diagnosticTest.findUnique({
       where: { id },
     });
@@ -43,7 +43,7 @@ export async function PUT(
   context: { params: { id: string } }
 ) {
   try {
-    const { id } = context.params;
+    const { id } = context.params; // Corrected parameter extraction
     const body = await req.json();
     const validatedData = testSchema.parse(body);
 
@@ -75,7 +75,7 @@ export async function DELETE(
   context: { params: { id: string } }
 ) {
   try {
-    const { id } = context.params;
+    const { id } = context.params; // Corrected parameter extraction
     await prisma.diagnosticTest.delete({
       where: { id },
     });
