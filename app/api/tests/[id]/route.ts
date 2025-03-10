@@ -1,7 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "../../../utils/prisma";
 import { z } from "zod";
-import type { RouteContext } from "next/dist/server/future/route-context"; // Ensure correct type
 
 const testSchema = z.object({
   patientName: z.string().min(1),
@@ -9,23 +8,16 @@ const testSchema = z.object({
   result: z.string().min(1),
   testDate: z.string().transform((val) => {
     if (!val.includes("T")) throw new Error("Invalid datetime format");
-
-    // Ensure it ends with seconds and 'Z' for UTC
-    return val.length === 16 ? `${val}:00Z` : val;
+    return val.length === 16 ? `${val}:00Z` : val; // Ensure ISO format
   }),
   notes: z.string().optional(),
 });
 
-//  GET test by ID
-export async function GET(
-  req: NextRequest,
-  context: RouteContext<{ id: string }> // Use RouteContext for type safety
-) {
+//   GET test by ID
+export async function GET(req: NextRequest, { params }: { params: { id: string } }) {
   try {
-    const { id } = context.params;
-    const test = await prisma.diagnosticTest.findUnique({
-      where: { id },
-    });
+    const { id } = params;
+    const test = await prisma.diagnosticTest.findUnique({ where: { id } });
 
     if (!test) {
       return NextResponse.json({ error: "Test not found" }, { status: 404 });
@@ -33,20 +25,14 @@ export async function GET(
 
     return NextResponse.json(test);
   } catch {
-    return NextResponse.json(
-      { error: "Failed to fetch test" },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: "Failed to fetch test" }, { status: 500 });
   }
 }
 
-// Update test by ID
-export async function PUT(
-  req: NextRequest,
-  context: RouteContext<{ id: string }>
-) {
+// UPDATE test by ID
+export async function PUT(req: NextRequest, { params }: { params: { id: string } }) {
   try {
-    const { id } = context.params;
+    const { id } = params;
     const body = await req.json();
     const validatedData = testSchema.parse(body);
 
@@ -61,34 +47,20 @@ export async function PUT(
     return NextResponse.json(updatedTest);
   } catch (error) {
     if (error instanceof z.ZodError) {
-      return NextResponse.json(
-        { error: error.errors[0].message },
-        { status: 400 }
-      );
+      return NextResponse.json({ error: error.errors[0].message }, { status: 400 });
     }
-    return NextResponse.json(
-      { error: "Failed to update test" },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: "Failed to update test" }, { status: 500 });
   }
 }
 
-// DELETE test by ID
-export async function DELETE(
-  req: NextRequest,
-  context: RouteContext<{ id: string }>
-) {
+//  DELETE test by ID
+export async function DELETE(req: NextRequest, { params }: { params: { id: string } }) {
   try {
-    const { id } = context.params;
-    await prisma.diagnosticTest.delete({
-      where: { id },
-    });
+    const { id } = params;
+    await prisma.diagnosticTest.delete({ where: { id } });
 
     return new NextResponse(null, { status: 204 });
   } catch {
-    return NextResponse.json(
-      { error: "Failed to delete test" },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: "Failed to delete test" }, { status: 500 });
   }
 }
