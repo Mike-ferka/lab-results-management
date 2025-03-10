@@ -14,22 +14,25 @@ const testSchema = z.object({
   notes: z.string().optional(),
 });
 
-// ✅ GET handler (fetch test by ID)
-export async function GET(req: NextRequest, { params }: { params: { id: string } }) {
+export async function GET(
+  request: Request, // Change from NextRequest to Request
+  { params }: { params: { id: string } }
+) {
   try {
-    const { id } = params;
-    if (!id) {
-      return NextResponse.json({ error: "ID is required" }, { status: 400 });
-    }
+    const test = await prisma.diagnosticTest.findUnique({
+      where: { id: Number(params.id) },
+    });
 
-    const test = await prisma.diagnosticTest.findUnique({ where: { id } });
     if (!test) {
       return NextResponse.json({ error: "Test not found" }, { status: 404 });
     }
-
+    
     return NextResponse.json(test);
   } catch (error) {
-    return NextResponse.json({ error: "Failed to fetch test" }, { status: 500 });
+    return NextResponse.json(
+      { error: "Failed to fetch test" },
+      { status: 500 }
+    );
   }
 }
 
