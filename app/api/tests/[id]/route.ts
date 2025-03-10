@@ -2,31 +2,32 @@ import { prisma } from "../../../utils/prisma";
 import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 
-// Zod Schema Validation
+// ✅ Zod Schema Validation
 const testSchema = z.object({
   patientName: z.string().min(1),
   testType: z.string().min(1),
   result: z.string().min(1),
   testDate: z.string().transform((val) => {
     if (!val.includes("T")) throw new Error("Invalid datetime format");
-    return val.length === 16 ? `${val}:00Z` : val; // Ensure ISO format
+    return val.length === 16 ? `${val}:00Z` : val;
   }),
   notes: z.string().optional(),
 });
 
-//  Correct Parameter Handling for Next.js 15
-type Params = { id: string };
+// ✅ Universal type for request parameters
+interface Params {
+  id: string;
+}
 
-// GET Test by ID
-export async function GET(req: NextRequest, { params }: { params: Params }) {
+// ✅ Correct Request Handling for Next.js 15
+export async function GET(req: NextRequest, context: { params: Params }) {
   try {
-    if (!params?.id) {
+    const { id } = context.params;
+    if (!id) {
       return NextResponse.json({ error: "ID is required" }, { status: 400 });
     }
 
-    const test = await prisma.diagnosticTest.findUnique({
-      where: { id: params.id },
-    });
+    const test = await prisma.diagnosticTest.findUnique({ where: { id } });
 
     if (!test) {
       return NextResponse.json({ error: "Test not found" }, { status: 404 });
@@ -38,10 +39,10 @@ export async function GET(req: NextRequest, { params }: { params: Params }) {
   }
 }
 
-// UPDATE Test by ID
-export async function PUT(req: NextRequest, { params }: { params: Params }) {
+export async function PUT(req: NextRequest, context: { params: Params }) {
   try {
-    if (!params?.id) {
+    const { id } = context.params;
+    if (!id) {
       return NextResponse.json({ error: "ID is required" }, { status: 400 });
     }
 
@@ -49,7 +50,7 @@ export async function PUT(req: NextRequest, { params }: { params: Params }) {
     const validatedData = testSchema.parse(body);
 
     const updatedTest = await prisma.diagnosticTest.update({
-      where: { id: params.id },
+      where: { id },
       data: {
         ...validatedData,
         testDate: new Date(validatedData.testDate),
@@ -65,14 +66,14 @@ export async function PUT(req: NextRequest, { params }: { params: Params }) {
   }
 }
 
-// DELETE Test by ID
-export async function DELETE(req: NextRequest, { params }: { params: Params }) {
+export async function DELETE(req: NextRequest, context: { params: Params }) {
   try {
-    if (!params?.id) {
+    const { id } = context.params;
+    if (!id) {
       return NextResponse.json({ error: "ID is required" }, { status: 400 });
     }
 
-    await prisma.diagnosticTest.delete({ where: { id: params.id } });
+    await prisma.diagnosticTest.delete({ where: { id } });
 
     return new NextResponse(null, { status: 204 });
   } catch {
