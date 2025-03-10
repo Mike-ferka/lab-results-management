@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { prisma } from "@/utils/prisma"; //  Use absolute import
+import { prisma } from "../../../utils/prisma";
 import { z } from "zod";
 import type { RouteContext } from "next/dist/server/future/route-context"; // Ensure correct type
 
