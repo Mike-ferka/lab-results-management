@@ -17,12 +17,12 @@ const testSchema = z.object({
 
 export async function GET(
   req: NextRequest,
-  context: { params: { id: string } } // Fix: Use `context`
+  context: { params: { id: string } }
 ) {
   try {
-    const { id } = await context.params; // Fix: Await params
+    const { id } = context.params;
     const test = await prisma.diagnosticTest.findUnique({
-      where: { id: id },
+      where: { id },
     });
 
     if (!test) {
@@ -30,7 +30,7 @@ export async function GET(
     }
 
     return NextResponse.json(test);
-  } catch (error) {
+  } catch {
     return NextResponse.json(
       { error: "Failed to fetch test" },
       { status: 500 }
@@ -40,15 +40,15 @@ export async function GET(
 
 export async function PUT(
   req: NextRequest,
-  context: { params: { id: string } } // Fix: Use `context`
+  context: { params: { id: string } }
 ) {
   try {
-    const { id } = await context.params; // Fix: Await params
+    const { id } = context.params;
     const body = await req.json();
     const validatedData = testSchema.parse(body);
 
     const updatedTest = await prisma.diagnosticTest.update({
-      where: { id: id },
+      where: { id },
       data: {
         ...validatedData,
         testDate: new Date(validatedData.testDate),
@@ -72,16 +72,16 @@ export async function PUT(
 
 export async function DELETE(
   req: NextRequest,
-  context: { params: { id: string } } // Fix: Use `context`
+  context: { params: { id: string } }
 ) {
   try {
-    const { id } = await context.params; // Fix: Await params
+    const { id } = context.params;
     await prisma.diagnosticTest.delete({
-      where: { id: id },
+      where: { id },
     });
 
     return new NextResponse(null, { status: 204 });
-  } catch (error) {
+  } catch {
     return NextResponse.json(
       { error: "Failed to delete test" },
       { status: 500 }
