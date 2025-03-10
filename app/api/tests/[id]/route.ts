@@ -2,7 +2,6 @@ import { prisma } from "../../../utils/prisma";
 import { NextRequest, NextResponse } from "next/server";
 import { z, ZodError } from "zod";
 
-// ✅ Zod Schema Validation
 const testSchema = z.object({
   patientName: z.string().min(1),
   testType: z.string().min(1),
@@ -14,8 +13,9 @@ const testSchema = z.object({
   notes: z.string().optional(),
 });
 
+// ✅ GET handler (get test by ID)
 export async function GET(
-  request: Request, // Change from NextRequest to Request
+  request: Request,
   { params }: { params: { id: string } }
 ) {
   try {
@@ -37,18 +37,16 @@ export async function GET(
 }
 
 // ✅ PUT handler (update test by ID)
-export async function PUT(req: NextRequest, { params }: { params: { id: string } }) {
+export async function PUT(
+  request: Request,
+  { params }: { params: { id: string } }
+) {
   try {
-    const { id } = params;
-    if (!id) {
-      return NextResponse.json({ error: "ID is required" }, { status: 400 });
-    }
-
-    const body = await req.json();
+    const body = await request.json();
     const validatedData = testSchema.parse(body);
 
     const updatedTest = await prisma.diagnosticTest.update({
-      where: { id },
+      where: { id: Number(params.id) },
       data: {
         ...validatedData,
         testDate: new Date(validatedData.testDate),
@@ -58,24 +56,33 @@ export async function PUT(req: NextRequest, { params }: { params: { id: string }
     return NextResponse.json(updatedTest);
   } catch (error) {
     if (error instanceof ZodError) {
-      return NextResponse.json({ error: error.errors[0].message }, { status: 400 });
+      return NextResponse.json(
+        { error: error.errors[0].message },
+        { status: 400 }
+      );
     }
-    return NextResponse.json({ error: "Failed to update test" }, { status: 500 });
+    return NextResponse.json(
+      { error: "Failed to update test" },
+      { status: 500 }
+    );
   }
 }
 
 // ✅ DELETE handler (delete test by ID)
-export async function DELETE(req: NextRequest, { params }: { params: { id: string } }) {
+export async function DELETE(
+  request: Request,
+  { params }: { params: { id: string } }
+) {
   try {
-    const { id } = params;
-    if (!id) {
-      return NextResponse.json({ error: "ID is required" }, { status: 400 });
-    }
-
-    await prisma.diagnosticTest.delete({ where: { id } });
+    await prisma.diagnosticTest.delete({
+      where: { id: Number(params.id) },
+    });
 
     return new NextResponse(null, { status: 204 });
-  } catch {
-    return NextResponse.json({ error: "Failed to delete test" }, { status: 500 });
+  } catch (error) {
+    return NextResponse.json(
+      { error: "Failed to delete test" },
+      { status: 500 }
+    );
   }
 }
