@@ -1,32 +1,38 @@
-import { prisma } from "../../../utils/prisma";
 import { NextRequest, NextResponse } from "next/server";
+import { prisma } from "../../../utils/prisma";
 import { z, ZodError } from "zod";
 
+// Schema for validating diagnostic test data
 const testSchema = z.object({
-  patientName: z.string().min(1),
-  testType: z.string().min(1),
-  result: z.string().min(1),
-  testDate: z.string().transform((val) => {
-    if (!val.includes("T")) throw new Error("Invalid datetime format");
-    return val.length === 16 ? `${val}:00Z` : val;
+  patientName: z.string().min(1, "Patient name is required"),
+  testType: z.string().min(1, "Test type is required"),
+  result: z.string().min(1, "Result is required"),
+  testDate: z.string().refine((val) => !isNaN(Date.parse(val)), {
+    message: "Invalid date format",
   }),
   notes: z.string().optional(),
 });
 
-// ✅ GET handler (get test by ID)
+// Type for the params object
+interface Params {
+  id: string;
+}
+
+// GET handler to fetch a specific test by ID
 export async function GET(
-  request: Request,
-  { params }: { params: { id: string } }
+  request: NextRequest,
+  { params }: { params: Promise<Params> } // `params` is now a Promise
 ) {
   try {
+    const resolvedParams = await params; // Await the params Promise
     const test = await prisma.diagnosticTest.findUnique({
-      where: { id: Number(params.id) },
+      where: { id: resolvedParams.id }, // Use the resolved `id`
     });
 
     if (!test) {
       return NextResponse.json({ error: "Test not found" }, { status: 404 });
     }
-    
+
     return NextResponse.json(test);
   } catch (error) {
     return NextResponse.json(
@@ -36,20 +42,24 @@ export async function GET(
   }
 }
 
-// ✅ PUT handler (update test by ID)
+// PUT handler to update a test by ID
 export async function PUT(
-  request: Request,
-  { params }: { params: { id: string } }
+  request: NextRequest,
+  { params }: { params: Promise<Params> } // `params` is now a Promise
 ) {
   try {
+    const resolvedParams = await params; // Await the params Promise
     const body = await request.json();
-    const validatedData = testSchema.parse(body);
+    const data = testSchema.parse(body);
 
     const updatedTest = await prisma.diagnosticTest.update({
-      where: { id: Number(params.id) },
+      where: { id: resolvedParams.id }, // Use the resolved `id`
       data: {
-        ...validatedData,
-        testDate: new Date(validatedData.testDate),
+        patientName: data.patientName,
+        testType: data.testType,
+        result: data.result,
+        testDate: new Date(data.testDate), // Ensure testDate is a Date object
+        notes: data.notes,
       },
     });
 
@@ -68,14 +78,15 @@ export async function PUT(
   }
 }
 
-// ✅ DELETE handler (delete test by ID)
+// DELETE handler to delete a test by ID
 export async function DELETE(
-  request: Request,
-  { params }: { params: { id: string } }
+  request: NextRequest,
+  { params }: { params: Promise<Params> } // `params` is now a Promise
 ) {
   try {
+    const resolvedParams = await params; // Await the params Promise
     await prisma.diagnosticTest.delete({
-      where: { id: Number(params.id) },
+      where: { id: resolvedParams.id }, // Use the resolved `id`
     });
 
     return new NextResponse(null, { status: 204 });
