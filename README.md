@@ -24,10 +24,10 @@ model DiagnosticTest {
 
 🎨 Frontend (React & Tailwind CSS)
 Next.js Pages & Components:
-pages/index.tsx → Displays all test results.
-pages/create.tsx → Form to add a new test result.
-pages/edit/[id].tsx → Edit an existing test result.
+pages.tsx → Displays all test results.
+
 Tailwind CSS: Styles the UI for a modern, responsive design.
+
 API Calls: Uses Next.js's fetch to interact with the backend.
 🔄 Data Flow
 1️⃣ User submits a new test result via the frontend.
@@ -52,7 +52,7 @@ Tailwind CSS
 
 🛠️ Setup Instructions
 1️⃣ Clone the Repository
-git clone https://github.com/your-username/lab-results-management.git
+git clone https://github.com/Mike-ferka/lab-results-management.git
 cd lab-results-management
 
 2️⃣ Install Dependencies
@@ -60,12 +60,12 @@ npm install
 
 3️⃣ Set Up Environment Variables
 Create a .env file in the root directory and add the following:
+Create a new database on Neon and copy and paste the DATABASE_URL in the .env file as below
 
 env
 DATABASE_URL="postgresql://your_user:your_password@localhost:5432/your_database"
 
-NEXT_PUBLIC_API_BASE_URL="http://localhost:3000/api"
-Replace your_user, your_password, and your_database with actual PostgreSQL credentials.
+
 
 4️⃣ Initialize Prisma
 
@@ -99,9 +99,11 @@ Response:
   "testDate": "2025-03-10",
   "notes": "Follow-up required"
 }
+
 📌 Get All Test Results
 Endpoint: GET /api/tests
 Description: Retrieves all stored test results.
+
 🔍 Get a Test Result by ID
 Endpoint: GET /api/tests/:id
 Description: Retrieves a single test result by ID.
@@ -118,32 +120,10 @@ Request Body (any updatable field):
 🗑️ Delete a Test Result
 Endpoint: DELETE /api/tests/:id
 Description: Deletes a test result from the database.
+
 🎨 Frontend UI
 The UI allows users to:
 ✅ Add new test results
 📜 View all test results in a list
 ✏️ Edit or 🗑 Delete test results
 
-Running the Frontend
-Simply start the Next.js app:
-
-npm run dev
-🚀 Deployment
-Deploy on Vercel
-Push your code to GitHub.
-Connect the repository to Vercel.
-Set up environment variables in Vercel.
-Deploy! 🎉
-📜 Evaluation Criteria
-✔️ Clean Code & Readability
-✔️ Best Practices in API Development
-✔️ Proper Use of Next.js, TypeScript, Prisma
-✔️ Functional Frontend & Backend
-
-📬 Submission
-GitHub Repository: [Insert Link Here]
-Live Demo (Vercel): [Insert Link Here]
-👨‍💻 Contributing
-Feel free to submit issues and pull requests to improve the project!
-
-💡 Built with ❤️ for better healthcare management. 🚀
