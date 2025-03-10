@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "../../../utils/prisma";
 import { z } from "zod";
 
+//  Schema validation
 const testSchema = z.object({
   patientName: z.string().min(1),
   testType: z.string().min(1),
@@ -13,18 +14,23 @@ const testSchema = z.object({
   notes: z.string().optional(),
 });
 
-//   GET test by ID
+// GET test by ID
 export async function GET(req: NextRequest, { params }: { params: { id: string } }) {
   try {
-    const { id } = params;
-    const test = await prisma.diagnosticTest.findUnique({ where: { id } });
+    if (!params?.id) {
+      return NextResponse.json({ error: "ID parameter is required" }, { status: 400 });
+    }
+
+    const test = await prisma.diagnosticTest.findUnique({
+      where: { id: params.id },
+    });
 
     if (!test) {
       return NextResponse.json({ error: "Test not found" }, { status: 404 });
     }
 
     return NextResponse.json(test);
-  } catch {
+  } catch (error) {
     return NextResponse.json({ error: "Failed to fetch test" }, { status: 500 });
   }
 }
@@ -32,12 +38,15 @@ export async function GET(req: NextRequest, { params }: { params: { id: string }
 // UPDATE test by ID
 export async function PUT(req: NextRequest, { params }: { params: { id: string } }) {
   try {
-    const { id } = params;
+    if (!params?.id) {
+      return NextResponse.json({ error: "ID parameter is required" }, { status: 400 });
+    }
+
     const body = await req.json();
     const validatedData = testSchema.parse(body);
 
     const updatedTest = await prisma.diagnosticTest.update({
-      where: { id },
+      where: { id: params.id },
       data: {
         ...validatedData,
         testDate: new Date(validatedData.testDate),
@@ -56,8 +65,11 @@ export async function PUT(req: NextRequest, { params }: { params: { id: string }
 //  DELETE test by ID
 export async function DELETE(req: NextRequest, { params }: { params: { id: string } }) {
   try {
-    const { id } = params;
-    await prisma.diagnosticTest.delete({ where: { id } });
+    if (!params?.id) {
+      return NextResponse.json({ error: "ID parameter is required" }, { status: 400 });
+    }
+
+    await prisma.diagnosticTest.delete({ where: { id: params.id } });
 
     return new NextResponse(null, { status: 204 });
   } catch {
