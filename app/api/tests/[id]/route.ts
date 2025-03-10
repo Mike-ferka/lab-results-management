@@ -17,10 +17,10 @@ const testSchema = z.object({
 
 export async function GET(
   req: NextRequest,
-  context: { params: { id: string } }
+  { params }: { params: { id: string } } // Corrected Type
 ) {
   try {
-    const { id } = context.params; // Corrected parameter extraction
+    const { id } = params;
     const test = await prisma.diagnosticTest.findUnique({
       where: { id },
     });
@@ -40,10 +40,10 @@ export async function GET(
 
 export async function PUT(
   req: NextRequest,
-  context: { params: { id: string } }
+  { params }: { params: { id: string } } // Corrected Type
 ) {
   try {
-    const { id } = context.params; // Corrected parameter extraction
+    const { id } = params;
     const body = await req.json();
     const validatedData = testSchema.parse(body);
 
@@ -72,10 +72,10 @@ export async function PUT(
 
 export async function DELETE(
   req: NextRequest,
-  context: { params: { id: string } }
+  { params }: { params: { id: string } } // Corrected Type
 ) {
   try {
-    const { id } = context.params; // Corrected parameter extraction
+    const { id } = params;
     await prisma.diagnosticTest.delete({
       where: { id },
     });
