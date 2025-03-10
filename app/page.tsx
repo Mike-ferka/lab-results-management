@@ -1,6 +1,7 @@
 "use client";
 import { useState, useEffect } from "react";
 import { PencilIcon, TrashIcon, XMarkIcon } from "@heroicons/react/24/outline";
+import "./globals.css"
 
 type User = {
   id: number;
@@ -56,7 +57,7 @@ export default function Page() {
     setMessage("");
 
     try {
-      const response = await fetch(formData.id ? `/api/${formData.id}` : "/api", {
+      const response = await fetch(formData.id ? `/api/tests/${formData.id}` : "/api", {
         method: formData.id ? "PUT" : "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(formData),
@@ -109,7 +110,7 @@ export default function Page() {
     if (!window.confirm("Are you sure you want to delete this test result?")) return;
 
     try {
-      const response = await fetch(`/api/${id}`, { method: "DELETE" });
+      const response = await fetch(`/api/tests/${id}`, { method: "DELETE" });
       if (!response.ok) throw new Error("Failed to delete test result");
 
       setMessage("Test result deleted successfully!");
