@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
-import { prisma } from "../../../utils/prisma";
+import { prisma } from "@/utils/prisma"; //  Use absolute import
 import { z } from "zod";
+import type { RouteContext } from "next/dist/server/future/route-context"; // Ensure correct type
 
 const testSchema = z.object({
   patientName: z.string().min(1),
@@ -15,12 +16,13 @@ const testSchema = z.object({
   notes: z.string().optional(),
 });
 
+//  GET test by ID
 export async function GET(
   req: NextRequest,
-  { params }: { params: { id: string } } // Corrected Type
+  context: RouteContext<{ id: string }> // Use RouteContext for type safety
 ) {
   try {
-    const { id } = params;
+    const { id } = context.params;
     const test = await prisma.diagnosticTest.findUnique({
       where: { id },
     });
@@ -38,12 +40,13 @@ export async function GET(
   }
 }
 
+// Update test by ID
 export async function PUT(
   req: NextRequest,
-  { params }: { params: { id: string } } // Corrected Type
+  context: RouteContext<{ id: string }>
 ) {
   try {
-    const { id } = params;
+    const { id } = context.params;
     const body = await req.json();
     const validatedData = testSchema.parse(body);
 
@@ -70,12 +73,13 @@ export async function PUT(
   }
 }
 
+// DELETE test by ID
 export async function DELETE(
   req: NextRequest,
-  { params }: { params: { id: string } } // Corrected Type
+  context: RouteContext<{ id: string }>
 ) {
   try {
-    const { id } = params;
+    const { id } = context.params;
     await prisma.diagnosticTest.delete({
       where: { id },
     });
