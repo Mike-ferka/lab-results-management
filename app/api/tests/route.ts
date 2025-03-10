@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { prisma } from "../../../utils/prisma";
+import { prisma } from "../../utils/prisma";
 import { z } from "zod";
 
 const testSchema = z.object({
