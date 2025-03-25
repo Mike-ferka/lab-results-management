@@ -2,8 +2,10 @@
 
 A Next.js application for efficiently managing diagnostic test results in medical laboratories. The system allows laboratories to create, read, update, and delete test results, ensuring organized and accessible records.
 
+
 🏗️ Architecture
 The Lab Results Management System follows a structured full-stack architecture using Next.js API routes for backend operations and a React-based frontend for user interactions.
+
 
 📌 Backend (API & Database)
 Next.js API Routes: Handles CRUD operations for diagnostic test results.
@@ -104,6 +106,7 @@ Response:
 Endpoint: GET /api/tests
 Description: Retrieves all stored test results.
 
+
 🔍 Get a Test Result by ID
 Endpoint: GET /api/tests/:id
 Description: Retrieves a single test result by ID.
@@ -120,6 +123,7 @@ Request Body (any updatable field):
 🗑️ Delete a Test Result
 Endpoint: DELETE /api/tests/:id
 Description: Deletes a test result from the database.
+
 
 🎨 Frontend UI
 The UI allows users to:
